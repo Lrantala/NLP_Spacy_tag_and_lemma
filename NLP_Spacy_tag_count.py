@@ -9,12 +9,6 @@ import csv
 import regex as re
 import os
 
-def remove_line_changes(text):
-    """Removes line change marks created by Spacy."""
-    for line, word in enumerate(text):
-        text[line] = str(word).replace("\n", " ")
-    return text
-
 def open_file(file):
     raw_table = pd.read_csv(file, sep=';', encoding='utf-8')
     return raw_table
@@ -50,66 +44,27 @@ def main():
     #Spacy stuff
     logging.debug("Entering Spacy")
     nlp = spacy.load('en')
-    #texts = df["text"]
-    # df['tokenized'] = df['text'].apply(lambda x: nlp.tokenizer(x))
-    # sentences = [sent.string.strip() for sent in doc.sents]
-    # for row in sentences:
-    #     print(row)
 
-
-
-
-    # tokens = []
-    # lemma = []
-    # pos = []
 # Iterating through the blocks of the big list
     count = 0
     for x in create_chunks(df, 10000):
-        # tokens = []
-        # lemma = []
-        # pos = []
-        # tag = []
         dep = []
         combined = []
         count += 1
         logging.debug("Starting iteration")
     # i = 0
         for doc in nlp.pipe(x['text'].astype('unicode').values):
-            # for doc in nlp.pipe(df['text'].astype('unicode').values):
-            #     i += 1
-            #     if i % 10000 == 0:
-            #         print(i)
             if doc.is_parsed:
-                #
-                # tokens.append([n.text for n in doc])
-                # lemma.append([n.lemma_ for n in doc])
-                # pos.append([n.pos_ for n in doc])
-                # tag.append([n.tag_ for n in doc])
-                # dep.append([n.dep_ for n in doc])
-
                 # This was used originally. Gives only simple POS tags.
                 # combined.append([(n.lemma_, n.pos_) for n in doc])
                 combined.append([(n.lemma_, n.tag_, n.dep_) for n in doc])
             else:
-                # We want to make sure that the lists of parsed results have the
-                # same number of entries of the original Dataframe, so add some blanks in case the parse fails
+            
                 combined.append(None)
-                # tokens.append(None)
-                # lemma.append(None)
-                # pos.append(None)
-                # tag.append(None)
-        #
+                
         print("Setting tokens to df")
         x["lemma_tag_dep"] = combined
-        # x['tokens'] = tokens
-        # x['lemmas'] = lemma
-        # x['pos'] = pos
 
-        # df['tokens'] = tokens
-        # df['lemmas'] = lemma
-        # df['pos'] = pos
-        # #
-        # print(df[1:10])
         save_file(x, str(count))
 
     # save_file(df)
